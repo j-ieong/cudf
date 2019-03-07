@@ -338,7 +338,13 @@ __host__ __device__ cudf::category convertStrToValue<cudf::category>(
 template <>
 __host__ __device__ cudf::timestamp convertStrToValue<cudf::timestamp>(
     const char* data, long start, long end, const ParseOptions& opts) {
-  return cudf::timestamp{convertStrToValue<int64_t>(data, start, end, opts)};
+  return cudf::timestamp{convertStrToValue<cudf::timestamp::value_type>(data, start, end, opts)};
+}
+
+template <>
+__host__ __device__ cudf::bool8 convertStrToValue<cudf::bool8>(
+    const char* data, long start, long end, const ParseOptions& opts) {
+  return cudf::bool8{convertStrToValue<cudf::bool8::value_type>(data, start, end, opts)};
 }
 
 #endif
