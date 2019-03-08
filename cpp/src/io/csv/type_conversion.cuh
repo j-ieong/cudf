@@ -346,7 +346,7 @@ template <>
 __host__ __device__ cudf::bool8 convertStrToValue<cudf::bool8>(
     const char* data, long start, long end, const ParseOptions& opts) {
   using Type = cudf::bool8::value_type;
-  cudf::bool8::value_type value;
+  Type value;
 
   // Check for user-specified true/false values first
   if (serializedTrieContains(opts.trueValuesTrie, data + start, end - start + 1)) {
