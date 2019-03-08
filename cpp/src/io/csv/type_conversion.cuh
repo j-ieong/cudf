@@ -338,13 +338,26 @@ __host__ __device__ cudf::category convertStrToValue<cudf::category>(
 template <>
 __host__ __device__ cudf::timestamp convertStrToValue<cudf::timestamp>(
     const char* data, long start, long end, const ParseOptions& opts) {
-  return cudf::timestamp{convertStrToValue<cudf::timestamp::value_type>(data, start, end, opts)};
+  using Type = cudf::timestamp::value_type;
+  return cudf::timestamp{convertStrToValue<Type>(data, start, end, opts)};
 }
 
 template <>
 __host__ __device__ cudf::bool8 convertStrToValue<cudf::bool8>(
     const char* data, long start, long end, const ParseOptions& opts) {
-  return cudf::bool8{convertStrToValue<cudf::bool8::value_type>(data, start, end, opts)};
+  using Type = cudf::bool8::value_type;
+  cudf::bool8::value_type value;
+
+  // Check for user-specified true/false values first
+  if (serializedTrieContains(opts.trueValuesTrie, data + start, end - start + 1)) {
+    value = 1;
+  } else if (serializedTrieContains(opts.falseValuesTrie, data + start, end - start + 1)) {
+    value = 0;
+  } else {
+    // Expect '0' or '1' in data, but clamp any non-zero value to 1 in case
+    value = (convertStrToValue<Type>(data, start, end, opts) != 0) ? 1 : 0;
+  }
+  return cudf::bool8{value};
 }
 
 #endif
